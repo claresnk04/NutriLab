@@ -79,9 +79,17 @@ export default function HomePage() {
     (totals.sugar >= limits.sugarG * 0.8 || totals.fat >= limits.saturatedFatG * 0.8);
 
   const statusTone = isOverLimit ? 'danger' : isNearLimit ? 'warn' : 'safe';
-  const statusLabel = isOverLimit ? 'Melebihi batas' : isNearLimit ? 'Hampir penuh' : 'Dalam batas aman';
+  const statusLabel = isOverLimit
+    ? 'Melebihi batas'
+    : isNearLimit
+      ? 'Hampir penuh'
+      : 'Dalam batas aman';
   const sugarTone =
-    totals.sugar > limits.sugarG ? 'danger' : totals.sugar >= limits.sugarG * 0.8 ? 'warn' : 'primary';
+    totals.sugar > limits.sugarG
+      ? 'danger'
+      : totals.sugar >= limits.sugarG * 0.8
+        ? 'warn'
+        : 'primary';
   const fatTone =
     totals.fat > limits.saturatedFatG
       ? 'danger'
@@ -157,16 +165,22 @@ export default function HomePage() {
             <div className="history-list">
               {activities.slice(0, 3).map((activity, index) => (
                 <article key={`${activity.name}-${index}`} className="history-item">
-                  <span className={`score-badge score-${activity.score.toLowerCase()}`}>{activity.score}</span>
+                  <span className={`score-badge score-${activity.score.toLowerCase()}`}>
+                    {activity.score}
+                  </span>
                   <div className="history-copy">
                     <div className="history-name">{activity.name}</div>
                     <div className="small history-detail">{activity.detail}</div>
                   </div>
-                  <span className={`badge ${activity.status === 'Dimakan' ? 'ok' : 'neutral'}`}>{activity.status}</span>
+                  <span className={`badge ${activity.status === 'Dimakan' ? 'ok' : 'neutral'}`}>
+                    {activity.status}
+                  </span>
                 </article>
               ))}
             </div>
-            {!activities.length && <div className="empty-state">Belum ada catatan makanan hari ini.</div>}
+            {!activities.length && (
+              <div className="empty-state">Belum ada catatan makanan hari ini.</div>
+            )}
           </section>
         </div>
       </main>

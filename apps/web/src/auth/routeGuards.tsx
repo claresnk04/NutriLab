@@ -11,9 +11,11 @@ export function ProtectedRoute() {
     return <p className="p-6 text-slate-600">Memuat sesi…</p>;
   }
   if (!user) {
-    return hasConsent()
-      ? <Navigate to="/auth" replace state={{ from: location.pathname }} />
-      : <Navigate to="/onboarding" replace />;
+    return hasConsent() ? (
+      <Navigate to="/auth" replace state={{ from: location.pathname }} />
+    ) : (
+      <Navigate to="/onboarding" replace />
+    );
   }
   return <Outlet />;
 }

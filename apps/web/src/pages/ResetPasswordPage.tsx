@@ -3,10 +3,7 @@ import { FirebaseError } from 'firebase/app';
 import { ArrowLeft, ArrowRight, CircleAlert, Eye, EyeOff, KeyRound, Mail } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router';
 import Shell from '../components/layout/Shell';
-import {
-  completePasswordReset,
-  verifyResetCode,
-} from '../auth/authService';
+import { completePasswordReset, verifyResetCode } from '../auth/authService';
 import { saveConsent } from '../lib/consent';
 
 function PasswordField({
@@ -56,7 +53,9 @@ export default function ResetPasswordPage() {
   const [verifying, setVerifying] = useState(Boolean(oobCode));
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [codeError, setCodeError] = useState(
-    oobCode ? '' : 'Tautan konfirmasi tidak lengkap atau sudah tidak berlaku. Silakan kirim ulang permintaan lupa kata sandi.',
+    oobCode
+      ? ''
+      : 'Tautan konfirmasi tidak lengkap atau sudah tidak berlaku. Silakan kirim ulang permintaan lupa kata sandi.',
   );
   const [newPassword, setNewPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -120,7 +119,8 @@ export default function ResetPasswordPage() {
               <span className="eyebrow">PEMULIHAN AKUN</span>
               <h1>Buat Kata Sandi Baru</h1>
               <p>
-                Masukkan kata sandi baru untuk akun Anda. Setelah disimpan, Anda akan langsung masuk ke halaman utama.
+                Masukkan kata sandi baru untuk akun Anda. Setelah disimpan, Anda akan langsung masuk
+                ke halaman utama.
               </p>
             </header>
 

@@ -1,9 +1,24 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { FirebaseError } from 'firebase/app';
-import { ArrowLeft, ArrowRight, CircleAlert, CircleCheck, ExternalLink, Eye, EyeOff, Mail } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CircleAlert,
+  CircleCheck,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Mail,
+} from 'lucide-react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import Shell from '../components/layout/Shell';
-import { login, loginWithGoogle, register, resetPassword, updateAccountName } from '../auth/authService';
+import {
+  login,
+  loginWithGoogle,
+  register,
+  resetPassword,
+  updateAccountName,
+} from '../auth/authService';
 import { getProfile, saveProfile } from '../firestore/profileRepository';
 
 type Mode = 'masuk' | 'daftar' | 'lupa' | 'terkirim';
@@ -160,10 +175,17 @@ export default function AuthPage() {
     if (domain.startsWith('yahoo.')) {
       return { label: 'Buka Yahoo Mail', url: 'https://mail.yahoo.com' };
     }
-    if (domain.startsWith('outlook.') || domain.startsWith('hotmail.') || domain.startsWith('live.')) {
+    if (
+      domain.startsWith('outlook.') ||
+      domain.startsWith('hotmail.') ||
+      domain.startsWith('live.')
+    ) {
       return { label: 'Buka Outlook Mail', url: 'https://outlook.live.com/mail/0/inbox' };
     }
-    return { label: 'Buka Email Sekarang', url: 'https://mail.google.com/mail/u/0/#search/in%3Aanywhere+NutriLab' };
+    return {
+      label: 'Buka Email Sekarang',
+      url: 'https://mail.google.com/mail/u/0/#search/in%3Aanywhere+NutriLab',
+    };
   }
 
   async function handleSendResetEmail() {
@@ -269,11 +291,7 @@ export default function AuthPage() {
                   <ExternalLink size={15} />
                 </a>
 
-                <button
-                  type="button"
-                  className="btn secondary"
-                  onClick={() => switchMode('masuk')}
-                >
+                <button type="button" className="btn secondary" onClick={() => switchMode('masuk')}>
                   <ArrowLeft size={16} />
                   Kembali ke Halaman Masuk
                 </button>
@@ -373,7 +391,11 @@ export default function AuthPage() {
                     </div>
                   )}
 
-                  <button className="btn auth-submit-btn" disabled={busy || googleBusy} type="submit">
+                  <button
+                    className="btn auth-submit-btn"
+                    disabled={busy || googleBusy}
+                    type="submit"
+                  >
                     {busy ? (
                       'Memproses…'
                     ) : isForgot ? (
@@ -420,7 +442,9 @@ export default function AuthPage() {
                       onClick={() => void handleGoogleLogin()}
                     >
                       <GoogleLogo />
-                      <span>{googleBusy ? 'Menghubungkan ke Google…' : 'Lanjutkan dengan Google'}</span>
+                      <span>
+                        {googleBusy ? 'Menghubungkan ke Google…' : 'Lanjutkan dengan Google'}
+                      </span>
                     </button>
 
                     <footer className="auth-footer">
@@ -476,7 +500,8 @@ function getAuthErrorMessage(error: unknown, mode: 'login' | 'register' | 'reset
     case 'auth/network-request-failed':
       return 'Koneksi terputus. Periksa jaringan internet Anda lalu coba lagi.';
     default:
-      if (mode === 'google') return 'Gagal masuk dengan Google. Pastikan konfigurasi OAuth sudah aktif.';
+      if (mode === 'google')
+        return 'Gagal masuk dengan Google. Pastikan konfigurasi OAuth sudah aktif.';
       if (mode === 'reset') return 'Gagal mengirim email konfirmasi reset kata sandi.';
       if (mode === 'register') return 'Pendaftaran belum berhasil. Periksa kembali data Anda.';
       return 'Gagal masuk. Periksa email dan kata sandi Anda.';

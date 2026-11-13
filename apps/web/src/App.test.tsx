@@ -7,11 +7,12 @@ import type { User } from 'firebase/auth';
 
 const testUser = { uid: 'test-user', email: 'test@example.com' } as User;
 
-function renderAt(path: string, authenticated = path !== '/onboarding' && path !== '/auth' && !path.startsWith('/reset-password')) {
+function renderAt(
+  path: string,
+  authenticated = path !== '/onboarding' && path !== '/auth' && !path.startsWith('/reset-password'),
+) {
   return render(
-    <AuthContext.Provider
-      value={{ user: authenticated ? testUser : null, loading: false }}
-    >
+    <AuthContext.Provider value={{ user: authenticated ? testUser : null, loading: false }}>
       <MemoryRouter initialEntries={[path]}>
         <App />
       </MemoryRouter>

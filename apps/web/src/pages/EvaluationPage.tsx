@@ -57,7 +57,8 @@ export default function EvaluationPage() {
 
   const eatenSugar = result?.normalized?.eaten.gulaG ?? (product?.gulaG ?? 0) * servings;
   const eatenFat = result?.normalized?.eaten.lemakJenuhG ?? (product?.lemakJenuhG ?? 0) * servings;
-  const statusTone = result?.status === 'hijau' ? 'safe' : result?.status === 'kuning' ? 'warn' : 'danger';
+  const statusTone =
+    result?.status === 'hijau' ? 'safe' : result?.status === 'kuning' ? 'warn' : 'danger';
   const statusTitle =
     result?.status === 'hijau'
       ? 'Aman Dikonsumsi'
@@ -76,11 +77,11 @@ export default function EvaluationPage() {
         namaProduk: extraction.jenis_produk_tebakan ?? 'Produk Kemasan',
         jenisProduk: product.jenisProduk,
         basisTabel: product.basisTabel,
-         nilaiLabel: extraction,
-         nSajian: servings,
-         status,
-         waktuMakan: new Date().toISOString(),
-         zonaWaktu: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        nilaiLabel: extraction,
+        nSajian: servings,
+        status,
+        waktuMakan: new Date().toISOString(),
+        zonaWaktu: Intl.DateTimeFormat().resolvedOptions().timeZone,
         dikonfirmasiPengguna: true,
         hasilSnapshot: result,
         configVersion: result.configVersion,
@@ -117,7 +118,9 @@ export default function EvaluationPage() {
             <header className="row eval-head">
               <div className="eval-title-wrap">
                 <span className="eyebrow">HASIL ANALISIS</span>
-                <h1 className="left-title">{extraction.jenis_produk_tebakan || 'Produk Kemasan'}</h1>
+                <h1 className="left-title">
+                  {extraction.jenis_produk_tebakan || 'Produk Kemasan'}
+                </h1>
               </div>
               <span className={`score-badge score-badge-lg score-${gradeLetter.toLowerCase()}`}>
                 {gradeLetter}
@@ -130,7 +133,8 @@ export default function EvaluationPage() {
                 {statusTitle}
               </span>
               <p className="muted-copy eval-reason">
-                {result.reasons[0] ?? 'Sesuaikan porsi di bawah ini sebelum menyimpan ke catatan harian.'}
+                {result.reasons[0] ??
+                  'Sesuaikan porsi di bawah ini sebelum menyimpan ke catatan harian.'}
               </p>
             </div>
 

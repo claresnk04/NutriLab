@@ -21,7 +21,16 @@ interface Props {
   title?: string;
 }
 
-export default function Shell({ children, tabs = false, tab = 'home', onTab, onScan, backLabel, onBack, title }: Props) {
+export default function Shell({
+  children,
+  tabs = false,
+  tab = 'home',
+  onTab,
+  onScan,
+  backLabel,
+  onBack,
+  title,
+}: Props) {
   const navigate = useNavigate();
   const goTab = (next: (typeof TABS)[number]) => {
     onTab?.(next.id);
@@ -31,20 +40,51 @@ export default function Shell({ children, tabs = false, tab = 'home', onTab, onS
   return (
     <div className="shell">
       <div className="app-frame">
-          <header className="appbar">
-          {onBack ? <button className="back-button" onClick={onBack}><ArrowLeft size={20} /> {backLabel ?? 'Kembali'}</button> : <div className="brand"><img className="logo-mark" src="/logo.png" alt="" aria-hidden="true" /> NutriLab</div>}
+        <header className="appbar">
+          {onBack ? (
+            <button className="back-button" onClick={onBack}>
+              <ArrowLeft size={20} /> {backLabel ?? 'Kembali'}
+            </button>
+          ) : (
+            <div className="brand">
+              <img className="logo-mark" src="/logo.png" alt="" aria-hidden="true" /> NutriLab
+            </div>
+          )}
           {title && <strong className="subflow-title">{title}</strong>}
-          {tabs && <nav className="top-nav" aria-label="Menu utama">
-            {TABS.map((t) => <button key={t.id} className={tab === t.id ? 'on' : ''} onClick={() => goTab(t)}>{t.icon}{t.label}</button>)}
-          </nav>}
+          {tabs && (
+            <nav className="top-nav" aria-label="Menu utama">
+              {TABS.map((t) => (
+                <button key={t.id} className={tab === t.id ? 'on' : ''} onClick={() => goTab(t)}>
+                  {t.icon}
+                  {t.label}
+                </button>
+              ))}
+            </nav>
+          )}
           <span className="spacer" />
         </header>
         {children}
         {tabs && (
           <nav className="bottom-nav" aria-label="Menu bawah">
-            {TABS.slice(0, 2).map((t) => <button key={t.id} className={tab === t.id ? 'on' : ''} onClick={() => goTab(t)}>{t.icon}{t.label}</button>)}
-            <button className="fab" aria-label="Scan makanan" onClick={onScan ?? (() => navigate('/scan'))}><Camera size={24} /></button>
-            {TABS.slice(2).map((t) => <button key={t.id} className={tab === t.id ? 'on' : ''} onClick={() => goTab(t)}>{t.icon}{t.label}</button>)}
+            {TABS.slice(0, 2).map((t) => (
+              <button key={t.id} className={tab === t.id ? 'on' : ''} onClick={() => goTab(t)}>
+                {t.icon}
+                {t.label}
+              </button>
+            ))}
+            <button
+              className="fab"
+              aria-label="Scan makanan"
+              onClick={onScan ?? (() => navigate('/scan'))}
+            >
+              <Camera size={24} />
+            </button>
+            {TABS.slice(2).map((t) => (
+              <button key={t.id} className={tab === t.id ? 'on' : ''} onClick={() => goTab(t)}>
+                {t.icon}
+                {t.label}
+              </button>
+            ))}
           </nav>
         )}
       </div>

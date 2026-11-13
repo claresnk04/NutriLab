@@ -3,7 +3,12 @@ import { FirebaseError } from 'firebase/app';
 import { Check, CircleCheck, Eye, EyeOff, KeyRound, LogOut } from 'lucide-react';
 import { computeDailyLimits } from '@nutri-lab/scoring';
 import Shell from '../components/layout/Shell';
-import { changeAccountPassword, isPasswordProviderUser, logout, updateAccountName } from '../auth/authService';
+import {
+  changeAccountPassword,
+  isPasswordProviderUser,
+  logout,
+  updateAccountName,
+} from '../auth/authService';
 import { useAuth } from '../auth/useAuth';
 import { getProfile, saveProfile } from '../firestore/profileRepository';
 import type { UserProfile } from '../firestore/types';
@@ -416,7 +421,11 @@ export default function ProfilePage() {
               </div>
             )}
 
-            <button className={`btn ${savedSuccess ? 'btn-saved' : ''}`} type="submit" disabled={saving}>
+            <button
+              className={`btn ${savedSuccess ? 'btn-saved' : ''}`}
+              type="submit"
+              disabled={saving}
+            >
               {savedSuccess ? <CircleCheck size={17} /> : <Check size={16} />}
               {saving ? 'Menyimpan…' : savedSuccess ? 'Tersimpan!' : 'Simpan Perubahan'}
             </button>
@@ -445,97 +454,98 @@ export default function ProfilePage() {
             </section>
 
             <section className="card profile-security-card">
-            <div className="row profile-security-head">
-              <div>
-                <span className="eyebrow">KEAMANAN AKUN</span>
-                <h3>Password Akun</h3>
-              </div>
-              {isPasswordProviderUser(user) && !showPasswordForm && (
-                <button
-                  type="button"
-                  className="btn ghost profile-security-toggle"
-                  onClick={() => {
-                    setShowPasswordForm(true);
-                    setPasswordError('');
-                    setPasswordSuccess('');
-                  }}
-                >
-                  <KeyRound size={15} />
-                  Ubah Password
-                </button>
-              )}
-            </div>
-
-            {!isPasswordProviderUser(user) && (
-              <p className="small muted-copy">
-                Akun ini terhubung melalui Google OAuth. Pengelolaan kata sandi dilakukan langsung melalui Akun Google Anda.
-              </p>
-            )}
-
-            {passwordSuccess && (
-              <div className="save-banner" role="status" aria-live="polite">
-                <CircleCheck size={18} className="save-banner-icon" />
-                <div className="save-banner-copy">
-                  <strong>Password Berhasil Diperbarui</strong>
-                  <span>{passwordSuccess}</span>
+              <div className="row profile-security-head">
+                <div>
+                  <span className="eyebrow">KEAMANAN AKUN</span>
+                  <h3>Password Akun</h3>
                 </div>
-              </div>
-            )}
-
-            {showPasswordForm && (
-              <form className="profile-password-form" onSubmit={handlePasswordSubmit}>
-                <PasswordInput
-                  label="Konfirmasi Password Lama"
-                  placeholder="Masukkan password saat ini"
-                  value={oldPassword}
-                  onChange={setOldPassword}
-                  autoComplete="current-password"
-                />
-                <div className="form-grid two-col">
-                  <PasswordInput
-                    label="Password Baru"
-                    placeholder="Minimal 6 karakter"
-                    value={newPassword}
-                    onChange={setNewPassword}
-                    autoComplete="new-password"
-                  />
-                  <PasswordInput
-                    label="Ulangi Password Baru"
-                    placeholder="Ketik ulang password baru"
-                    value={confirmNewPassword}
-                    onChange={setConfirmNewPassword}
-                    autoComplete="new-password"
-                  />
-                </div>
-
-                {passwordError && (
-                  <p className="small error-text" role="alert">
-                    {passwordError}
-                  </p>
-                )}
-
-                <div className="profile-password-actions">
-                  <button className="btn" type="submit" disabled={passwordSaving}>
-                    <Check size={16} />
-                    {passwordSaving ? 'Memverifikasi & Menyimpan…' : 'Perbarui Password'}
-                  </button>
+                {isPasswordProviderUser(user) && !showPasswordForm && (
                   <button
-                    className="btn secondary"
                     type="button"
-                    disabled={passwordSaving}
+                    className="btn ghost profile-security-toggle"
                     onClick={() => {
-                      setShowPasswordForm(false);
-                      setOldPassword('');
-                      setNewPassword('');
-                      setConfirmNewPassword('');
+                      setShowPasswordForm(true);
                       setPasswordError('');
+                      setPasswordSuccess('');
                     }}
                   >
-                    Batal
+                    <KeyRound size={15} />
+                    Ubah Password
                   </button>
+                )}
+              </div>
+
+              {!isPasswordProviderUser(user) && (
+                <p className="small muted-copy">
+                  Akun ini terhubung melalui Google OAuth. Pengelolaan kata sandi dilakukan langsung
+                  melalui Akun Google Anda.
+                </p>
+              )}
+
+              {passwordSuccess && (
+                <div className="save-banner" role="status" aria-live="polite">
+                  <CircleCheck size={18} className="save-banner-icon" />
+                  <div className="save-banner-copy">
+                    <strong>Password Berhasil Diperbarui</strong>
+                    <span>{passwordSuccess}</span>
+                  </div>
                 </div>
-              </form>
-            )}
+              )}
+
+              {showPasswordForm && (
+                <form className="profile-password-form" onSubmit={handlePasswordSubmit}>
+                  <PasswordInput
+                    label="Konfirmasi Password Lama"
+                    placeholder="Masukkan password saat ini"
+                    value={oldPassword}
+                    onChange={setOldPassword}
+                    autoComplete="current-password"
+                  />
+                  <div className="form-grid two-col">
+                    <PasswordInput
+                      label="Password Baru"
+                      placeholder="Minimal 6 karakter"
+                      value={newPassword}
+                      onChange={setNewPassword}
+                      autoComplete="new-password"
+                    />
+                    <PasswordInput
+                      label="Ulangi Password Baru"
+                      placeholder="Ketik ulang password baru"
+                      value={confirmNewPassword}
+                      onChange={setConfirmNewPassword}
+                      autoComplete="new-password"
+                    />
+                  </div>
+
+                  {passwordError && (
+                    <p className="small error-text" role="alert">
+                      {passwordError}
+                    </p>
+                  )}
+
+                  <div className="profile-password-actions">
+                    <button className="btn" type="submit" disabled={passwordSaving}>
+                      <Check size={16} />
+                      {passwordSaving ? 'Memverifikasi & Menyimpan…' : 'Perbarui Password'}
+                    </button>
+                    <button
+                      className="btn secondary"
+                      type="button"
+                      disabled={passwordSaving}
+                      onClick={() => {
+                        setShowPasswordForm(false);
+                        setOldPassword('');
+                        setNewPassword('');
+                        setConfirmNewPassword('');
+                        setPasswordError('');
+                      }}
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </form>
+              )}
             </section>
           </div>
         </div>

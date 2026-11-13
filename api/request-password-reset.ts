@@ -12,13 +12,15 @@ function requiredEnv(name: string) {
 }
 
 function getAdminAuth() {
-  const app = getApps()[0] ?? initializeApp({
-    credential: cert({
-      projectId: requiredEnv('FIREBASE_PROJECT_ID'),
-      clientEmail: requiredEnv('FIREBASE_CLIENT_EMAIL'),
-      privateKey: requiredEnv('FIREBASE_PRIVATE_KEY').replace(/\\n/g, '\n'),
-    }),
-  });
+  const app =
+    getApps()[0] ??
+    initializeApp({
+      credential: cert({
+        projectId: requiredEnv('FIREBASE_PROJECT_ID'),
+        clientEmail: requiredEnv('FIREBASE_CLIENT_EMAIL'),
+        privateKey: requiredEnv('FIREBASE_PRIVATE_KEY').replace(/\\n/g, '\n'),
+      }),
+    });
   return getAuth(app);
 }
 
@@ -90,7 +92,8 @@ export default async function handler(request: VercelRequest, response: VercelRe
     }
 
     if (request.method === 'OPTIONS') return response.status(204).end();
-    if (request.method !== 'POST') return response.status(405).json({ message: 'Method tidak diizinkan.' });
+    if (request.method !== 'POST')
+      return response.status(405).json({ message: 'Method tidak diizinkan.' });
 
     const rawEmail = typeof request.body?.email === 'string' ? request.body.email : '';
     const email = rawEmail.trim().toLowerCase();

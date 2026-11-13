@@ -199,7 +199,10 @@ export default function ScanPage() {
       return;
     }
 
-    const scale = Math.min(1, MAX_CAPTURE_DIMENSION / Math.max(video.videoWidth, video.videoHeight));
+    const scale = Math.min(
+      1,
+      MAX_CAPTURE_DIMENSION / Math.max(video.videoWidth, video.videoHeight),
+    );
     const canvas = document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
     canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
@@ -265,7 +268,11 @@ export default function ScanPage() {
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (values.sugar.trim() === '' && values.energy.trim() === '' && values.saturatedFat.trim() === '') {
+    if (
+      values.sugar.trim() === '' &&
+      values.energy.trim() === '' &&
+      values.saturatedFat.trim() === ''
+    ) {
       setError('Masukkan minimal kandungan Gula atau Energi dari label kemasan.');
       return;
     }
@@ -292,10 +299,15 @@ export default function ScanPage() {
             <section className="card scanner-card">
               <header className="scanner-header">
                 <h1>Pindai Label Gizi</h1>
-                <p>Arahkan kamera ke tabel informasi nilai gizi pada kemasan makanan atau minuman.</p>
+                <p>
+                  Arahkan kamera ke tabel informasi nilai gizi pada kemasan makanan atau minuman.
+                </p>
               </header>
 
-              <div className={`scanner-viewport ${cameraActive ? 'is-live' : ''}`} aria-label="Jendela bidik kamera">
+              <div
+                className={`scanner-viewport ${cameraActive ? 'is-live' : ''}`}
+                aria-label="Jendela bidik kamera"
+              >
                 {cameraActive ? (
                   <>
                     <video
@@ -345,12 +357,20 @@ export default function ScanPage() {
 
               <div className="scanner-cta-stack">
                 {cameraActive ? (
-                  <button className="btn btn-capture is-capturing" type="button" onClick={capturePhoto}>
+                  <button
+                    className="btn btn-capture is-capturing"
+                    type="button"
+                    onClick={capturePhoto}
+                  >
                     <span className="capture-shutter-dot" aria-hidden="true" />
                     Ambil Foto Sekarang
                   </button>
                 ) : (
-                  <button className="btn btn-capture" type="button" onClick={() => void startCamera()}>
+                  <button
+                    className="btn btn-capture"
+                    type="button"
+                    onClick={() => void startCamera()}
+                  >
                     <Camera size={20} />
                     Ambil Foto Kamera
                   </button>
@@ -405,7 +425,9 @@ export default function ScanPage() {
             <form className="card validation-card" onSubmit={submit}>
               <header className="row validation-head">
                 <div>
-                  <span className="eyebrow">{manual && !hasScanned ? 'INPUT MANUAL' : 'HASIL PINDAI'}</span>
+                  <span className="eyebrow">
+                    {manual && !hasScanned ? 'INPUT MANUAL' : 'HASIL PINDAI'}
+                  </span>
                   <h2>{manual && !hasScanned ? 'Masukkan Nilai Gizi' : 'Konfirmasi Nilai Gizi'}</h2>
                 </div>
                 <button className="link-button retake-link" type="button" onClick={handleRetake}>
@@ -463,7 +485,11 @@ export default function ScanPage() {
                 className="more-fields-toggle"
                 onClick={() => setShowMoreFields((prev) => !prev)}
               >
-                <span>{showMoreFields ? 'Sembunyikan nutrisi tambahan' : 'Tampilkan nutrisi tambahan (opsional)'}</span>
+                <span>
+                  {showMoreFields
+                    ? 'Sembunyikan nutrisi tambahan'
+                    : 'Tampilkan nutrisi tambahan (opsional)'}
+                </span>
                 {showMoreFields ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
 
