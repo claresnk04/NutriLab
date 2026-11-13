@@ -1,0 +1,11 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/tools/ocr-conversion/.venv/Scripts/python.exe",
+  "python.testing.pytestEnabled": true,
+  "python.testing.cwd": "${workspaceFolder}/tools/ocr-conversion",
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

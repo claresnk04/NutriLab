@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "echo API-only deployment",
+  "outputDirectory": ".",
+  "functions": {
+    "api/*.ts": {
+      "runtime": "@vercel/node@30.0.0"
+    }
+  }
+}

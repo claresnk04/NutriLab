@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+@import './legacy-ui.css';
+
+@theme {
+  --color-brand: #0f766e;
+  --color-brand-dark: #115e59;
+  --color-status-hijau: #15803d;
+  --color-status-kuning: #a16207;
+  --color-status-merah: #b91c1c;
+}
+
+/* NFR aksesibilitas (PRD 13): teks dasar >= 16px, mendukung pembesaran teks. */
+html {
+  font-size: 100%;
+}
+
+body {
+  @apply bg-white text-base text-slate-900 antialiased;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
