@@ -1,0 +1,24 @@
+{
+  "name": "nutri-lab",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Nutri-lab: pemeriksa kecocokan gizi produk kemasan untuk penyandang DM tipe 2 (PWA)",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "firebase"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "npm run dev -w apps/web",
+    "build": "npm run build -w packages/scoring && npm run build -w apps/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "emulators": "firebase emulators:start --config firebase/firebase.json --project demo-nutri-lab --only auth,firestore",
+    "test:rules": "firebase emulators:exec --config firebase/firebase.json --project demo-nutri-lab --only firestore \"npm run test:rules -w firebase\""
+  }
+}

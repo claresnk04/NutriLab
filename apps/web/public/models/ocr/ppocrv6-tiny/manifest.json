@@ -1,0 +1,6 @@
+{
+  "version": "ppocrv6-tiny-v1",
+  "detector": "det.onnx",
+  "recognizer": "rec.onnx",
+  "dictionary": "rec_dict.txt"
+}
