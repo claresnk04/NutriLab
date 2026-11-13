@@ -1,5 +1,4 @@
 import { Navigate, Route, Routes } from 'react-router';
-import AppLayout from './components/AppLayout';
 import HomePage from './pages/HomePage';
 import HistoryPage from './pages/HistoryPage';
 import ScanPage from './pages/ScanPage';
@@ -7,6 +6,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import ProfilePage from './pages/ProfilePage';
 import OnboardingPage from './pages/OnboardingPage';
 import AuthPage from './pages/AuthPage';
+import EvaluationPage from './pages/EvaluationPage';
 import { ProtectedRoute, PublicOnlyRoute } from './auth/routeGuards';
 
 /**
@@ -22,13 +22,13 @@ export default function App() {
         <Route path="/auth" element={<AuthPage />} />
       </Route>
       <Route element={<ProtectedRoute />}>
-        <Route element={<AppLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="riwayat" element={<HistoryPage />} />
-          <Route path="scan" element={<ScanPage />} />
-          <Route path="analitik" element={<AnalyticsPage />} />
-          <Route path="profil" element={<ProfilePage />} />
-        </Route>
+        <Route index element={<HomePage />} />
+        <Route path="riwayat" element={<HistoryPage />} />
+        <Route path="scan" element={<ScanPage />} />
+        <Route path="evaluasi" element={<EvaluationPage />} />
+        <Route path="evaluation" element={<EvaluationPage />} />
+        <Route path="analitik" element={<AnalyticsPage />} />
+        <Route path="profil" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

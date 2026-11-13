@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './legacy-ui.css';
 
 @theme {
   --color-brand: #0f766e;

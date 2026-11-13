@@ -1,57 +1,61 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { AlertTriangle, ArrowRight, ChartPie, CircleCheck, ShieldCheck, UserRoundCheck } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import Shell from '../components/layout/Shell';
+
+const FEATURES = [
+  { tag: 'Bebas Ketegangan Mata', title: 'Scan Label Gizi Instan', body: 'Cukup foto tabel Nilai Informasi Gizi di belakang kemasan. AI otomatis mendeteksi kadar gula dan lemak tanpa perlu menghitung manual.' },
+  { tag: 'Eksplorasi Santai', title: 'Cek Dulu Tanpa Cemas', body: 'Ingin membandingkan makanan di supermarket? Gunakan Mode Cek Saja untuk simulasi aman tanpa mengganggu catatan grafik harian Anda.' },
+  { tag: 'Hitungan Porsi Riil', title: 'Bebas Jebakan Takaran Saji', body: 'Kemasan sering mengecoh dengan mencantumkan angka per sajian kecil. NutriLab menghitung porsi riil Anda, bahkan jika hanya makan 3-4 keping.' },
+];
+const CONSENT = [
+  'Saya berusia 18 tahun atau lebih (dewasa mandiri).',
+  'Saya menyetujui pemrosesan data kesehatan dasar secara aman untuk keperluan target gizi harian.',
+  'Saya memahami bahwa hasil analisis NutriLab bersifat edukasi gizi harian, bukan pengganti resep atau rekomendasi medis dokter.',
+];
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const [adult, setAdult] = useState(false);
-  const [healthData, setHealthData] = useState(false);
-  const [disclaimer, setDisclaimer] = useState(false);
-  const ready = adult && healthData && disclaimer;
+  const [checked, setChecked] = useState<boolean[]>(CONSENT.map(() => false));
+  const all = checked.every(Boolean);
+  const [showWarning, setShowWarning] = useState(false);
+  const toggle = (i: number) => setChecked((c) => c.map((v, k) => (k === i ? !v : v)));
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6">
-      <p className="text-sm font-semibold uppercase tracking-wide text-brand">Nutri-lab</p>
-      <h1 className="mt-2 text-3xl font-bold">Baca label dengan lebih mudah</h1>
-      <p className="mt-3 leading-7 text-slate-600">
-        Nutri-lab membantu memahami angka pada label gizi kemasan. Ini alat edukasi, bukan alat
-        diagnosis atau pengganti konsultasi tenaga kesehatan.
-      </p>
-      <div className="mt-8 space-y-4">
-        <label className="flex gap-3 rounded-xl border border-slate-200 p-4">
-          <input
-            type="checkbox"
-            checked={adult}
-            onChange={(event) => setAdult(event.target.checked)}
-          />
-          <span>Saya berusia minimal 18 tahun.</span>
-        </label>
-        <label className="flex gap-3 rounded-xl border border-slate-200 p-4">
-          <input
-            type="checkbox"
-            checked={healthData}
-            onChange={(event) => setHealthData(event.target.checked)}
-          />
-          <span>Saya menyetujui pemrosesan data kesehatan untuk fitur aplikasi.</span>
-        </label>
-        <label className="flex gap-3 rounded-xl border border-slate-200 p-4">
-          <input
-            type="checkbox"
-            checked={disclaimer}
-            onChange={(event) => setDisclaimer(event.target.checked)}
-          />
-          <span>Saya memahami hasil bukan diagnosis dan perlu dikonfirmasi.</span>
-        </label>
-      </div>
-      <button
-        disabled={!ready}
-        onClick={() => navigate('/auth')}
-        className="mt-8 w-full rounded-xl bg-brand px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Lanjut ke masuk
-      </button>
-      <Link className="mt-5 block text-center text-sm text-slate-600 underline" to="/auth">
-        Sudah punya akun?
-      </Link>
-    </div>
+    <Shell>
+      <main className="page">
+         <div className="cols stretch welcome-layout">
+           <section className="card welcome-card" style={{ alignItems: 'center', textAlign: 'center' }}>
+             <span className="pill"><ShieldCheck size={16} /> Desain Khusus Ramah Lansia &amp; DM2</span>
+              <img className="welcome-image" src="/grandfather.png" alt="Bapak lansia membaca label gizi dengan kaca pembesar" />
+             <h1>Selamat Datang di NutriLab</h1>
+             <p style={{ margin: 0 }}>Laboratorium digital gizi pribadi Anda. Pahami nilai gizi makanan kemasan tanpa rasa cemas dan kendalikan batas gula darah harian Anda secara terukur.</p>
+           </section>
+
+           <div className="grid welcome-side">
+             <div className="row" style={{ gap: 14, justifyContent: 'center' }}>
+               {[CircleCheck, ChartPie, UserRoundCheck].map((I, k) => (
+                 <span key={k} className="feature-icon"><I size={24} /></span>
+               ))}
+             </div>
+              <section className="card welcome-features" style={{ textAlign: 'center', alignItems: 'center' }}>
+               {FEATURES.map((f) => (
+                 <article key={f.title} style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+                   <span className="pill">{f.tag}</span><h2>{f.title}</h2><p style={{ margin: 0 }}>{f.body}</p>
+                 </article>
+               ))}
+             </section>
+              <section className="card welcome-consent" style={{ background: 'var(--color-surface-mint)' }}>
+              <h3 style={{ fontSize: 16 }}>Persetujuan Wajib Privasi &amp; Medis</h3>
+               {showWarning && !all && <div className="alert-banner" role="alert"><AlertTriangle size={18} /> Lengkapi ketiga persetujuan sebelum melanjutkan.</div>}
+               {CONSENT.map((t, i) => (
+                 <label key={t} className={`check ${checked[i] ? 'checked' : ''}`}><input type="checkbox" checked={checked[i]} onChange={() => { toggle(i); setShowWarning(false); }} />{t}</label>
+               ))}
+                <button className="btn" onClick={() => all ? navigate('/auth') : setShowWarning(true)}>Mulai Sekarang <ArrowRight size={18} /></button>
+            </section>
+          </div>
+        </div>
+      </main>
+    </Shell>
   );
 }

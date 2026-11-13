@@ -21,21 +21,21 @@ function renderAt(path: string) {
 describe('App skeleton', () => {
   it('menampilkan 5 menu navigasi bawah dengan Scan di tengah', () => {
     renderAt('/');
-    const nav = screen.getByRole('navigation', { name: 'Navigasi utama' });
-    const links = Array.from(nav.querySelectorAll('a')).map((a) => a.textContent);
-    expect(links).toHaveLength(5);
-    expect(links[2]).toContain('Scan');
+    const nav = screen.getByRole('navigation', { name: 'Menu bawah' });
+    const buttons = Array.from(nav.querySelectorAll('button')).map((button) => button.textContent);
+    expect(buttons).toHaveLength(5);
+    expect(nav.querySelector('button[aria-label="Scan makanan"]')).toBeInTheDocument();
   });
 
   it.each([
-    ['/', 'Home'],
-    ['/riwayat', 'Riwayat'],
-    ['/scan', 'Scan'],
-    ['/analitik', 'Analitik'],
-    ['/profil', 'Profil'],
+    ['/', 'Dompet Koin Gizi'],
+    ['/riwayat', 'Riwayat Catatan'],
+    ['/scan', 'Pindai Label Gizi'],
+    ['/analitik', 'Analisis Asupan'],
+    ['/profil', 'Sesuaikan Batas Gizi'],
   ])('rute %s menampilkan halaman %s', (path, title) => {
     renderAt(path);
-    expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: title })).toBeInTheDocument();
   });
 
   it('rute onboarding tidak menampilkan navigasi bawah', () => {
