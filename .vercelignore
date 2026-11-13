@@ -1,0 +1,8 @@
+node_modules/
+dist/
+firebase/public/
+*.local
+*.env
+serviceAccount*.json
+*-firebase-adminsdk-*.json
+emailjs-private-key.txt

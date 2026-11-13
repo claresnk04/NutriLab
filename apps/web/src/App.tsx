@@ -6,20 +6,25 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import ProfilePage from './pages/ProfilePage';
 import OnboardingPage from './pages/OnboardingPage';
 import AuthPage from './pages/AuthPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import EvaluationPage from './pages/EvaluationPage';
-import { ProtectedRoute, PublicOnlyRoute } from './auth/routeGuards';
+import { ConsentRequiredRoute, ProtectedRoute, PublicOnlyRoute } from './auth/routeGuards';
 
 /**
  * Peta rute (PRD v1.1 bagian 7 dan 8.1).
- * Alur pengguna baru: /onboarding (F-01) -> /auth (F-02) -> profil opsional (F-03) -> Home.
- * Guard autentikasi/persetujuan ditambahkan saat pengembangan fitur.
+ * Alur pengguna baru: /onboarding + persetujuan (F-01) -> /auth (F-02) -> profil opsional (F-03) -> Home.
+ * Browser tanpa persetujuan selalu diarahkan ke /onboarding; /auth hanya terbuka setelah setuju.
+ * Tautan konfirmasi email lupa kata sandi mengarah ke /reset-password?oobCode=...
  */
 export default function App() {
   return (
     <Routes>
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route element={<PublicOnlyRoute />}>
         <Route path="/onboarding" element={<OnboardingPage />} />
-        <Route path="/auth" element={<AuthPage />} />
+        <Route element={<ConsentRequiredRoute />}>
+          <Route path="/auth" element={<AuthPage />} />
+        </Route>
       </Route>
       <Route element={<ProtectedRoute />}>
         <Route index element={<HomePage />} />

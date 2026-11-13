@@ -8,6 +8,7 @@ coverage/
 *.tsbuildinfo
 .vite/
 .eslintcache
+.agents/
 
 # Logs
 *.log
@@ -20,6 +21,7 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+!**/.env.example
 *.local
 
 # Python and raw OCR models
@@ -35,8 +37,19 @@ tools/ocr-conversion/models/
 firebase/public/
 firebase-export-*/
 serviceAccount*.json
+*-firebase-adminsdk-*.json
+emailjs-private-key.txt
+credentials*.json
+*-credentials.json
+*.pem
+*.key
+*.p12
+*.pfx
+.secrets/
 
 # OS and editor
 .DS_Store
 Thumbs.db
 .idea/
+
+.vercel

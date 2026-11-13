@@ -4,6 +4,7 @@ import type { ExtractionResponse } from '../schemas/extraction';
 export type EntryStatus = 'dicek' | 'dimakan';
 
 export interface UserProfile {
+  nama?: string;
   jenisKelamin?: 'M' | 'F';
   beratKg?: number;
   tinggiCm?: number;

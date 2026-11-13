@@ -1,15 +1,16 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import App from './App';
 import { AuthContext } from './auth/authContext';
+import { saveConsent } from './lib/consent';
 import type { User } from 'firebase/auth';
 
 const testUser = { uid: 'test-user', email: 'test@example.com' } as User;
 
-function renderAt(path: string) {
+function renderAt(path: string, authenticated = path !== '/onboarding' && path !== '/auth' && !path.startsWith('/reset-password')) {
   return render(
     <AuthContext.Provider
-      value={{ user: path === '/onboarding' ? null : testUser, loading: false }}
+      value={{ user: authenticated ? testUser : null, loading: false }}
     >
       <MemoryRouter initialEntries={[path]}>
         <App />
@@ -41,5 +42,20 @@ describe('App skeleton', () => {
   it('rute onboarding tidak menampilkan navigasi bawah', () => {
     renderAt('/onboarding');
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  });
+
+  it('halaman auth menampilkan tombol Google OAuth dan alur Lupa Kata Sandi', () => {
+    saveConsent();
+    renderAt('/auth', false);
+    expect(screen.getByRole('button', { name: /Lanjutkan dengan Google/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Lupa kata sandi\?/i }));
+    expect(screen.getByRole('heading', { name: 'Lupa Kata Sandi?' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Kirim Email Konfirmasi/i })).toBeInTheDocument();
+  });
+
+  it('rute /reset-password menampilkan halaman Buat Kata Sandi Baru', () => {
+    renderAt('/reset-password', false);
+    expect(screen.getByRole('heading', { name: 'Buat Kata Sandi Baru' })).toBeInTheDocument();
   });
 });

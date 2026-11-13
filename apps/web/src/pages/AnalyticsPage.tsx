@@ -7,6 +7,27 @@ import { listEntries } from '../firestore/entryRepository';
 import type { FoodEntry } from '../firestore/types';
 import { scoreFor } from '../lib/foodEntryPresentation';
 
+function dateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function entryDateKey(entry: FoodEntry) {
+  if (entry.waktuMakan) {
+    const mealDate = new Date(entry.waktuMakan);
+    if (!Number.isNaN(mealDate.getTime())) return dateKey(mealDate);
+  }
+  return entry.dibuatPada ? dateKey(entry.dibuatPada) : undefined;
+}
+
+function entrySugar(entry: FoodEntry) {
+  const eatenSugar = entry.hasilSnapshot.normalized?.eaten.gulaG;
+  if (typeof eatenSugar === 'number' && Number.isFinite(eatenSugar)) return eatenSugar;
+  return (entry.nilaiLabel.gizi.gula_g.nilai ?? 0) * (entry.nSajian || 1);
+}
+
 export default function AnalyticsPage() {
   const { user } = useAuth();
   const [entries, setEntries] = useState<FoodEntry[]>([]);
@@ -21,12 +42,15 @@ export default function AnalyticsPage() {
     const days = Array.from({ length: range === '7 Hari' ? 7 : 30 }, (_, index) => {
       const date = new Date();
       date.setDate(date.getDate() - (range === '7 Hari' ? 6 - index : 29 - index));
-      return { key: date.toISOString().slice(0, 10), day: date.toLocaleDateString('id-ID', { weekday: 'short' }), sugar: 0 };
+      const day =
+        range === '7 Hari'
+          ? date.toLocaleDateString('id-ID', { weekday: 'short' })
+          : date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      return { key: dateKey(date), day, sugar: 0 };
     });
     for (const entry of entries) {
-      const date = entry.waktuMakan?.slice(0, 10);
-      const day = days.find((item) => item.key === date);
-      if (day) day.sugar += entry.hasilSnapshot.normalized?.eaten.gulaG ?? 0;
+      const day = days.find((item) => item.key === entryDateKey(entry));
+      if (day) day.sugar += entrySugar(entry);
     }
     return days;
   }, [entries, range]);
@@ -47,7 +71,7 @@ export default function AnalyticsPage() {
         <div className="grid analysis-page">
           <div className="row page-title-row"><div><span className="eyebrow">PEMANTAUAN</span><h2>Analisis Asupan</h2></div><div className="seg compact-seg">{(['7 Hari', '30 Hari'] as const).map((item) => <button key={item} className={range === item ? 'on' : ''} onClick={() => setRange(item)} type="button">{item}</button>)}</div></div>
           <section className="analysis-hero"><div className="eyebrow light">RATA-RATA HARIAN</div><div className="analysis-number">{average.toFixed(1).replace('.', ',')} <small>g gula</small></div><p>Data dihitung dari catatan makanan yang tersimpan di akun Anda.</p><div className="analysis-safe"><TrendingUp size={18} /> Catatan aktif • {range}</div></section>
-          <section className="card"><div className="row"><h3>Tren Asupan Gula</h3><span className="small">gram</span></div><div className="chart"><ResponsiveContainer width="100%" height={190}><LineChart data={chartData} margin={{ top: 12, right: 8, left: -24, bottom: 0 }}><XAxis dataKey="day" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} /><Tooltip formatter={(value) => [`${Number(value).toFixed(1)} g`, 'Gula']} /><Line type="monotone" dataKey="sugar" stroke="var(--color-nutri-teal)" strokeWidth={3} dot={{ fill: 'var(--color-nutri-teal)', r: 4 }} /></LineChart></ResponsiveContainer></div></section>
+          <section className="card"><div className="row"><h3>Tren Asupan Gula</h3><span className="small">gram</span></div><div className="chart"><ResponsiveContainer width="100%" height={190}><LineChart data={chartData} margin={{ top: 12, right: 8, left: -24, bottom: 0 }}><XAxis dataKey="day" interval={range === '30 Hari' ? 4 : 0} minTickGap={12} tick={{ fontSize: range === '30 Hari' ? 10 : 11 }} /><YAxis tick={{ fontSize: 11 }} /><Tooltip formatter={(value) => [`${Number(value).toFixed(1)} g`, 'Gula']} /><Line type="monotone" dataKey="sugar" stroke="var(--color-nutri-teal)" strokeWidth={3} dot={{ fill: 'var(--color-nutri-teal)', r: 4 }} /></LineChart></ResponsiveContainer></div></section>
           <section className="card top-foods"><h3>3 Makanan Paling Sering</h3>{frequent.map(([name, value], index) => <div className="ranking-row" key={name}><b>{index + 1}</b><span className={`score-badge score-${value.score.toLowerCase()}`}>{value.score}</span><strong>{name}</strong><span className="small">{value.count} kali</span></div>)}{!frequent.length && <div className="empty-state">Belum ada data makanan.</div>}</section>
         </div>
       </main>

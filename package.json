@@ -23,6 +23,10 @@
     "test:rules": "firebase emulators:exec --config firebase/firebase.json --project demo-nutri-lab --only firestore \"npm run test:rules -w firebase\""
   },
   "devDependencies": {
+    "@vercel/node": "^30.0.0",
     "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.10.0"
   }
 }

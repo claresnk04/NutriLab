@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Camera, CircleCheck, Dot, Droplet, PencilLine } from 'lucide-react';
+import { Camera, PencilLine } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { computeDailyLimits } from '@nutri-lab/scoring';
 import Shell from '../components/layout/Shell';
@@ -11,8 +11,21 @@ import { toActivity } from '../lib/foodEntryPresentation';
 
 const format = (value: number) => value.toFixed(1).replace('.', ',');
 
-function Meter({ value, max }: { value: number; max: number }) {
-  return <div className="bar" role="progressbar" aria-valuenow={value} aria-valuemax={max}><i style={{ width: `${Math.min(100, (value / max) * 100)}%` }} /></div>;
+function Meter({
+  value,
+  max,
+  tone = 'primary',
+}: {
+  value: number;
+  max: number;
+  tone?: 'primary' | 'secondary' | 'tertiary' | 'warn' | 'danger';
+}) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <div className={`bar bar-${tone}`} role="progressbar" aria-valuenow={value} aria-valuemax={max}>
+      <i style={{ width: `${pct}%` }} />
+    </div>
+  );
 }
 
 export default function HomePage() {
@@ -34,29 +47,127 @@ export default function HomePage() {
 
   const limits = useMemo(() => computeDailyLimits(profile), [profile]);
   const activities = useMemo(() => entries.map(toActivity), [entries]);
-  const totals = useMemo(() => entries.reduce((total, entry) => {
-    const eaten = entry.hasilSnapshot.normalized?.eaten;
-    return {
-      sugar: total.sugar + (eaten?.gulaG ?? 0),
-      fat: total.fat + (eaten?.lemakJenuhG ?? 0),
-    };
-  }, { sugar: 0, fat: 0 }), [entries]);
+  const totals = useMemo(
+    () =>
+      entries.reduce(
+        (total, entry) => {
+          const eaten = entry.hasilSnapshot.normalized?.eaten;
+          return {
+            sugar: total.sugar + (eaten?.gulaG ?? 0),
+            fat: total.fat + (eaten?.lemakJenuhG ?? 0),
+          };
+        },
+        { sugar: 0, fat: 0 },
+      ),
+    [entries],
+  );
   const left = Math.max(0, limits.sugarG - totals.sugar);
+
+  const todayLabel = useMemo(
+    () =>
+      new Intl.DateTimeFormat('id-ID', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+      }).format(new Date()),
+    [],
+  );
+
+  const isOverLimit = totals.sugar > limits.sugarG || totals.fat > limits.saturatedFatG;
+  const isNearLimit =
+    !isOverLimit &&
+    (totals.sugar >= limits.sugarG * 0.8 || totals.fat >= limits.saturatedFatG * 0.8);
+
+  const statusTone = isOverLimit ? 'danger' : isNearLimit ? 'warn' : 'safe';
+  const statusLabel = isOverLimit ? 'Melebihi batas' : isNearLimit ? 'Hampir penuh' : 'Dalam batas aman';
+  const sugarTone =
+    totals.sugar > limits.sugarG ? 'danger' : totals.sugar >= limits.sugarG * 0.8 ? 'warn' : 'primary';
+  const fatTone =
+    totals.fat > limits.saturatedFatG
+      ? 'danger'
+      : totals.fat >= limits.saturatedFatG * 0.8
+        ? 'warn'
+        : 'tertiary';
 
   return (
     <Shell tabs tab="home">
       <main className="page">
         <div className="dashboard-layout">
           <section className="card dashboard-card">
-            <div className="row dashboard-head"><div><div className="small dashboard-label">Sisa Jatah Hari Ini</div><h2>Dompet Koin Gizi</h2></div><span className="pill dashboard-pill"><CalendarDays size={16} /> Hari Ini</span></div>
-            <div className="metric-stack">
-              <article className="metric-card metric-card-primary"><div className="row metric-head"><div className="metric-title"><Droplet size={18} /> Koin Gula Harian</div><span className="status-chip safe">Aman</span></div><div className="metric-value-row"><span className="metric-value">{format(left)}</span><span className="metric-unit">g</span></div><div className="small metric-caption">Sisa kuota dari {format(limits.sugarG)} g</div><Meter value={totals.sugar} max={limits.sugarG} /><div className="row metric-meta"><span>Terpakai: {format(totals.sugar)} g</span><span>{Math.round((left / limits.sugarG) * 100)}%</span></div></article>
-              <article className="metric-card"><div className="row metric-head"><div className="metric-title"><Dot /> Lemak Jenuh</div><span className="metric-number">{format(totals.fat)} / {format(limits.saturatedFatG)} g</span></div><Meter value={totals.fat} max={limits.saturatedFatG} /></article>
-              <article className="metric-card status-card"><div className="metric-title"><CircleCheck size={18} /> Kondisi Terjaga</div><div className="status-text">Pola makanmu hari ini tetap dalam batas aman PERKENI.</div></article>
+            <header className="row dashboard-head">
+              <h2>Dompet Koin Gizi</h2>
+              <span className="dashboard-date">Hari ini, {todayLabel}</span>
+            </header>
+
+            <div className="hero-figure">
+              <div className="metric-value-row">
+                <span className="metric-value">{format(left)}</span>
+                <span className="metric-unit">g gula tersisa</span>
+              </div>
+              <span className={`status-inline ${statusTone}`}>
+                <span className="status-dot" aria-hidden="true" />
+                {statusLabel}
+              </span>
+            </div>
+
+            <div className="meters-group">
+              <div className="meter-item">
+                <div className="row meter-head">
+                  <span className="meter-label">Gula Harian</span>
+                  <span className="meter-amount">
+                    {format(totals.sugar)} <small>/ {format(limits.sugarG)} g</small>
+                  </span>
+                </div>
+                <Meter value={totals.sugar} max={limits.sugarG} tone={sugarTone} />
+              </div>
+
+              <div className="meter-item">
+                <div className="row meter-head">
+                  <span className="meter-label">Lemak Jenuh</span>
+                  <span className="meter-amount">
+                    {format(totals.fat)} <small>/ {format(limits.saturatedFatG)} g</small>
+                  </span>
+                </div>
+                <Meter value={totals.fat} max={limits.saturatedFatG} tone={fatTone} />
+              </div>
             </div>
           </section>
-          <div className="row action-row quick-actions"><button className="btn" onClick={() => navigate('/scan')}><Camera size={18} /> Scan Makanan</button><button className="btn ghost" onClick={() => navigate('/scan?manual=1')}><PencilLine size={18} /> Input Manual</button></div>
-          <section className="card recent-card"><div className="row recent-head"><h2>Aktivitas Terakhir</h2><button className="link-button" onClick={() => navigate('/riwayat')}>Lihat Semua</button></div>{error && <p className="small error-text" role="alert">{error}</p>}<div className="history-list">{activities.slice(0, 3).map((activity, index) => <article key={`${activity.name}-${index}`} className="tile row history-item"><span className={`score-badge score-${activity.score.toLowerCase()}`}>{activity.score}</span><div className="history-copy"><div className="history-name">{activity.name}</div><div className="small">{activity.detail}</div></div><span className={`badge ${activity.status === 'Dimakan' ? 'ok' : 'neutral'}`}>{activity.status}</span></article>)}</div>{!activities.length && <div className="empty-state">Belum ada catatan makanan.</div>}</section>
+
+          <div className="row action-row quick-actions">
+            <button className="btn" onClick={() => navigate('/scan')}>
+              <Camera size={16} /> Scan Makanan
+            </button>
+            <button className="btn secondary" onClick={() => navigate('/scan?manual=1')}>
+              <PencilLine size={16} /> Input Manual
+            </button>
+          </div>
+
+          <section className="card recent-card">
+            <div className="row recent-head">
+              <h2>Aktivitas Terakhir</h2>
+              <button className="link-button recent-link" onClick={() => navigate('/riwayat')}>
+                Lihat semua
+              </button>
+            </div>
+            {error && (
+              <p className="small error-text" role="alert">
+                {error}
+              </p>
+            )}
+            <div className="history-list">
+              {activities.slice(0, 3).map((activity, index) => (
+                <article key={`${activity.name}-${index}`} className="history-item">
+                  <span className={`score-badge score-${activity.score.toLowerCase()}`}>{activity.score}</span>
+                  <div className="history-copy">
+                    <div className="history-name">{activity.name}</div>
+                    <div className="small history-detail">{activity.detail}</div>
+                  </div>
+                  <span className={`badge ${activity.status === 'Dimakan' ? 'ok' : 'neutral'}`}>{activity.status}</span>
+                </article>
+              ))}
+            </div>
+            {!activities.length && <div className="empty-state">Belum ada catatan makanan hari ini.</div>}
+          </section>
         </div>
       </main>
     </Shell>
