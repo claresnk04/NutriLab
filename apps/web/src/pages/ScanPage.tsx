@@ -14,8 +14,7 @@ import {
 import { useNavigate, useSearchParams } from 'react-router';
 import type { ExtractionResponse } from '../schemas/extraction';
 import Shell from '../components/layout/Shell';
-import { hasGeminiApiKey, runGeminiOcr } from '../ai/geminiOcr';
-import { hasGroqApiKey, runGroqOcr } from '../ai/groqOcr';
+import { runGeminiOcr, runGroqOcr } from '../ai/ocrProxy';
 import { blobToImageData } from '../ocr/imageTransform';
 import { runClientOcr } from '../ocr/workerClient';
 import { useScanStore } from '../store/scanStore';
@@ -104,19 +103,15 @@ function fromExtraction(extraction: ExtractionResponse): FormValues {
 }
 
 async function extractNutritionFromImage(image: ImageData): Promise<ExtractionResponse> {
-  if (hasGeminiApiKey()) {
-    try {
-      return await runGeminiOcr(image);
-    } catch (err) {
-      console.warn('Gemini OCR gagal, beralih ke fallback berikutnya.', err);
-    }
+  try {
+    return await runGeminiOcr(image);
+  } catch (err) {
+    console.warn('Gemini OCR gagal, beralih ke fallback berikutnya.', err);
   }
-  if (hasGroqApiKey()) {
-    try {
-      return await runGroqOcr(image);
-    } catch (err) {
-      console.warn('Groq OCR gagal, beralih ke PaddleOCR lokal.', err);
-    }
+  try {
+    return await runGroqOcr(image);
+  } catch (err) {
+    console.warn('Groq OCR gagal, beralih ke PaddleOCR lokal.', err);
   }
   const local = await runClientOcr(image);
   return local.extraction;

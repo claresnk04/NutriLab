@@ -52,4 +52,8 @@ credentials*.json
 Thumbs.db
 .idea/
 
+# Local project documents
+/PRD_*.md
+/REVISI_Naskah*.docx*
+
 .vercel

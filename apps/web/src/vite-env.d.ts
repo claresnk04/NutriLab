@@ -10,10 +10,6 @@ interface ImportMetaEnv {
   readonly VITE_APPCHECK_SITE_KEY?: string;
   readonly VITE_USE_EMULATORS?: string;
   readonly VITE_OCR_MODEL_BASE_URL?: string;
-  readonly VITE_GEMINI_MODEL?: string;
-  readonly VITE_GEMINI_API_KEY?: string;
-  readonly VITE_GROQ_MODEL?: string;
-  readonly VITE_GROQ_API_KEY?: string;
 }
 
 interface ImportMeta {

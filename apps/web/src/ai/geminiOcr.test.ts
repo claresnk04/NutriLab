@@ -1,11 +1,10 @@
 import {
   extractOutputText,
   GEMINI_MODEL_CHAIN,
-  hasGeminiApiKey,
   normalizeExtraction,
   parseGeminiJson,
 } from './geminiOcr';
-import { extractGroqOutputText, GROQ_MODEL_CHAIN, hasGroqApiKey } from './groqOcr';
+import { extractGroqOutputText, GROQ_MODEL_CHAIN } from './groqOcr';
 
 function validResponse() {
   const numeric = (nilai: number | null, teks_asli = '') => ({
@@ -97,12 +96,11 @@ describe('Gemini OCR response handling', () => {
     expect(() => extractOutputText({ steps: [] })).toThrow();
   });
 
-  it('memakai rantai model Gemini 3.x aktif dan memeriksa API key', () => {
+  it('memakai rantai model Gemini 3.x aktif', () => {
     expect(GEMINI_MODEL_CHAIN[0]).toBe('gemini-3.5-flash-lite');
     expect(GEMINI_MODEL_CHAIN).toContain('gemini-3.5-flash');
     expect(GEMINI_MODEL_CHAIN).toContain('gemini-3.8-flash');
     expect(GEMINI_MODEL_CHAIN.some((model) => model.startsWith('gemini-2'))).toBe(false);
-    expect(typeof hasGeminiApiKey()).toBe('boolean');
   });
 
   it('mengambil teks dari respons Groq Chat Completions dan membersihkan blok <think>', () => {
@@ -115,6 +113,5 @@ describe('Gemini OCR response handling', () => {
     ).toBe(120);
     expect(() => extractGroqOutputText({ choices: [] })).toThrow();
     expect(GROQ_MODEL_CHAIN[0]).toBe('qwen/qwen3.8-27b');
-    expect(typeof hasGroqApiKey()).toBe('boolean');
   });
 });
