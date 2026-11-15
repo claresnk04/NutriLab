@@ -1,7 +1,7 @@
 # Nutri-lab
 
 Pemeriksa kecocokan gizi produk kemasan untuk penyandang diabetes melitus tipe 2.
-Aplikasi dibuat sebagai Progressive Web App (PWA). Spesifikasi produk ada di [PRD_Nutri-lab_v1_1.md](./PRD_Nutri-lab_v1_1.md).
+Aplikasi dibuat sebagai Progressive Web App (PWA). Dokumen PRD dan naskah revisi disimpan lokal di luar tracking Git.
 
 > Status: **MVP client-side**. OCR berjalan di browser melalui Web Worker dan ONNX Runtime Web.
 

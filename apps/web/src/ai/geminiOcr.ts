@@ -1,26 +1,16 @@
 ﻿import { extractionResponseSchema, type ExtractionResponse } from '../schemas/extraction';
-import type { OcrProgress } from '../ocr/types';
 
 const MAX_IMAGE_DIMENSION = 1280;
-const REQUEST_TIMEOUT_MS = 30_000;
-const API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
-const API_KEY = (import.meta.env.VITE_GEMINI_API_KEY ?? '').trim();
-const PRIMARY_MODEL = (import.meta.env.VITE_GEMINI_MODEL ?? '').trim() || 'gemini-3.5-flash-lite';
 
 /** Rantai model: model utama lalu fallback model Flash 3.x bila kuota/server sibuk. */
 export const GEMINI_MODEL_CHAIN = [
   ...new Set([
-    PRIMARY_MODEL,
     'gemini-3.5-flash-lite',
     'gemini-3.5-flash',
     'gemini-3.1-flash-lite',
     'gemini-3.8-flash',
   ]),
 ];
-
-export function hasGeminiApiKey() {
-  return API_KEY.length > 0;
-}
 
 const nullableNumber = { type: ['number', 'null'] };
 const nullableString = { type: ['string', 'null'] };
@@ -224,14 +214,6 @@ export async function imageDataToBase64(image: ImageData) {
   return btoa(binary);
 }
 
-function progress(
-  onProgress: ((value: OcrProgress) => void) | undefined,
-  phase: OcrProgress['phase'],
-  percent: number,
-) {
-  onProgress?.({ phase, percent });
-}
-
 type InteractionStep = { type?: string; content?: Array<{ type?: string; text?: string }> };
 type GenerateCandidate = { content?: { parts?: Array<{ text?: string }> } };
 
@@ -263,88 +245,4 @@ export function extractOutputText(body: unknown): string {
     if (text) return text;
   }
   throw new Error('Respons Gemini tidak berisi teks.');
-}
-
-export class GeminiRequestError extends Error {
-  readonly status: number;
-  readonly retryWithNextModel: boolean;
-
-  constructor(message: string, status: number, retryWithNextModel: boolean) {
-    super(message);
-    this.name = 'GeminiRequestError';
-    this.status = status;
-    this.retryWithNextModel = retryWithNextModel;
-  }
-}
-
-async function callInteraction(model: string, data: string): Promise<unknown> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  const url = `${API_BASE_URL}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(API_KEY)}`;
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: prompt }, { inlineData: { mimeType: 'image/jpeg', data } }],
-          },
-        ],
-        generationConfig: {
-          responseMimeType: 'application/json',
-          responseJsonSchema,
-        },
-      }),
-    });
-    if (!response.ok) {
-      const detail = await response.text().catch(() => '');
-      // 404 = model tidak tersedia, 429 = kuota habis, 5xx = server sibuk → coba model berikutnya.
-      const retry = response.status === 404 || response.status === 429 || response.status >= 500;
-      throw new GeminiRequestError(
-        `Gemini (${model}) HTTP ${response.status}: ${detail.slice(0, 200)}`,
-        response.status,
-        retry,
-      );
-    }
-    return await response.json();
-  } catch (error) {
-    if (error instanceof GeminiRequestError) throw error;
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new GeminiRequestError(`Gemini (${model}) timeout`, 0, true);
-    }
-    throw new GeminiRequestError(`Koneksi ke Gemini gagal: ${String(error)}`, 0, false);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-export async function runGeminiOcr(
-  image: ImageData,
-  onProgress?: (value: OcrProgress) => void,
-): Promise<ExtractionResponse & { modelUsed: string }> {
-  if (!hasGeminiApiKey()) throw new Error('VITE_GEMINI_API_KEY belum diisi.');
-  progress(onProgress, 'preparing', 10);
-  const data = await imageDataToBase64(image);
-  progress(onProgress, 'uploading', 30);
-
-  let lastError: unknown = null;
-  for (const model of GEMINI_MODEL_CHAIN) {
-    try {
-      progress(onProgress, 'analyzing', 55);
-      const body = await callInteraction(model, data);
-      progress(onProgress, 'validating', 85);
-      const extraction = normalizeExtraction(parseGeminiJson(extractOutputText(body)));
-      progress(onProgress, 'completed', 100);
-      return { ...extraction, modelUsed: model };
-    } catch (error) {
-      lastError = error;
-      if (error instanceof GeminiRequestError && !error.retryWithNextModel) break;
-    }
-  }
-  throw lastError instanceof Error ? lastError : new Error('Analisis Gemini gagal.');
 }

@@ -6,27 +6,7 @@ import { useAuth } from '../auth/useAuth';
 import { listEntries } from '../firestore/entryRepository';
 import type { FoodEntry } from '../firestore/types';
 import { scoreFor } from '../lib/foodEntryPresentation';
-
-function dateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function entryDateKey(entry: FoodEntry) {
-  if (entry.waktuMakan) {
-    const mealDate = new Date(entry.waktuMakan);
-    if (!Number.isNaN(mealDate.getTime())) return dateKey(mealDate);
-  }
-  return entry.dibuatPada ? dateKey(entry.dibuatPada) : undefined;
-}
-
-function entrySugar(entry: FoodEntry) {
-  const eatenSugar = entry.hasilSnapshot.normalized?.eaten.gulaG;
-  if (typeof eatenSugar === 'number' && Number.isFinite(eatenSugar)) return eatenSugar;
-  return (entry.nilaiLabel.gizi.gula_g.nilai ?? 0) * (entry.nSajian || 1);
-}
+import { averageDailySugar, buildAnalyticsData } from '../lib/analytics';
 
 export default function AnalyticsPage() {
   const { user } = useAuth();
@@ -39,34 +19,21 @@ export default function AnalyticsPage() {
   }, [user]);
 
   const chartData = useMemo(() => {
-    const days = Array.from({ length: range === '7 Hari' ? 7 : 30 }, (_, index) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (range === '7 Hari' ? 6 - index : 29 - index));
-      const day =
-        range === '7 Hari'
-          ? date.toLocaleDateString('id-ID', { weekday: 'short' })
-          : date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-      return { key: dateKey(date), day, sugar: 0 };
-    });
-    for (const entry of entries) {
-      const day = days.find((item) => item.key === entryDateKey(entry));
-      if (day) day.sugar += entrySugar(entry);
-    }
-    return days;
+    return buildAnalyticsData(entries, range);
   }, [entries, range]);
 
-  const average = chartData.length
-    ? chartData.reduce((sum, item) => sum + item.sugar, 0) / chartData.length
-    : 0;
+  const average = averageDailySugar(chartData);
   const frequent = useMemo(() => {
     const counts = new Map<string, { count: number; score: ReturnType<typeof scoreFor> }>();
-    entries.forEach((entry) => {
-      const current = counts.get(entry.namaProduk ?? 'Produk tanpa nama');
-      counts.set(entry.namaProduk ?? 'Produk tanpa nama', {
-        count: (current?.count ?? 0) + 1,
-        score: scoreFor(entry),
+    entries
+      .filter((entry) => entry.status === 'dimakan')
+      .forEach((entry) => {
+        const current = counts.get(entry.namaProduk ?? 'Produk tanpa nama');
+        counts.set(entry.namaProduk ?? 'Produk tanpa nama', {
+          count: (current?.count ?? 0) + 1,
+          score: scoreFor(entry),
+        });
       });
-    });
     return [...counts.entries()].sort((a, b) => b[1].count - a[1].count).slice(0, 3);
   }, [entries]);
 
